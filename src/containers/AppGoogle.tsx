@@ -60,7 +60,9 @@ const AppGoogle: React.FC = () => {
 
   const handleGoogleSuccess = (response: CredentialResponse) => {
     if (response.credential) {
-      const payload = JSON.parse(atob(response.credential.split(".")[1]));
+      const base64Url = response.credential.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const payload = JSON.parse(atob(base64));
       const user = {
         email: payload.email,
         name: payload.name,

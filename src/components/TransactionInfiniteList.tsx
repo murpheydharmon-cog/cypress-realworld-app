@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { styled } from "@mui/material/styles";
 import { get } from "lodash/fp";
 import { useTheme, useMediaQuery, Divider } from "@mui/material";
@@ -29,6 +30,26 @@ export interface TransactionListProps {
   pagination: TransactionPagination;
 }
 
+interface RowItemData {
+  transactions: TransactionResponseItem[];
+  isMobile: boolean;
+}
+
+const Row = ({ index, style, data }: ListChildComponentProps<RowItemData>) => {
+  const { transactions, isMobile } = data;
+  const transaction = get(index, transactions);
+
+  if (index < transactions.length) {
+    return (
+      <div style={style}>
+        <TransactionItem transaction={transaction} />
+        <Divider variant={isMobile ? "fullWidth" : "inset"} />
+      </div>
+    );
+  }
+  return null;
+};
+
 const TransactionInfiniteList: React.FC<TransactionListProps> = ({
   transactions,
   loadNextPage,
@@ -51,19 +72,10 @@ const TransactionInfiniteList: React.FC<TransactionListProps> = ({
 
   const removePx = (str: string) => +str.slice(0, str.length - 2);
 
-  const Row = ({ index, style }: ListChildComponentProps) => {
-    const transaction = get(index, transactions);
-
-    if (index < transactions.length) {
-      return (
-        <div style={style}>
-          <TransactionItem transaction={transaction} />
-          <Divider variant={isMobile ? "fullWidth" : "inset"} />
-        </div>
-      );
-    }
-    return null;
-  };
+  const itemData = useMemo<RowItemData>(
+    () => ({ transactions, isMobile }),
+    [transactions, isMobile]
+  );
 
   const listHeight = isXsBreakpoint ? removePx(theme.spacing(74)) : removePx(theme.spacing(88));
   const listWidth = isXsBreakpoint ? removePx(theme.spacing(38)) : removePx(theme.spacing(90));
@@ -85,6 +97,7 @@ const TransactionInfiniteList: React.FC<TransactionListProps> = ({
             height={listHeight}
             width={listWidth}
             itemSize={itemSize}
+            itemData={itemData}
           >
             {Row}
           </FixedSizeList>
