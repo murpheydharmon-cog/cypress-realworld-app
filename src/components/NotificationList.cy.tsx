@@ -1,8 +1,5 @@
 import NotificationList from "./NotificationList";
-import {
-  NotificationResponseItem,
-  PaymentNotificationStatus,
-} from "../models";
+import { NotificationResponseItem, PaymentNotificationStatus } from "../models";
 
 describe("NotificationList", () => {
   const notifications: NotificationResponseItem[] = [

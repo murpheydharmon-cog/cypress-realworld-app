@@ -29,9 +29,7 @@ describe("BankAccountList", () => {
 
   it("renders a list of bank accounts", () => {
     const deleteBankAccount = cy.stub();
-    cy.mount(
-      <BankAccountList bankAccounts={bankAccounts} deleteBankAccount={deleteBankAccount} />
-    );
+    cy.mount(<BankAccountList bankAccounts={bankAccounts} deleteBankAccount={deleteBankAccount} />);
     cy.get("[data-test=bankaccount-list]").should("be.visible");
     cy.get("[data-test^=bankaccount-list-item]").should("have.length", 2);
     cy.contains("First National Bank").should("be.visible");
@@ -40,17 +38,13 @@ describe("BankAccountList", () => {
 
   it("shows delete button only for active accounts", () => {
     const deleteBankAccount = cy.stub();
-    cy.mount(
-      <BankAccountList bankAccounts={bankAccounts} deleteBankAccount={deleteBankAccount} />
-    );
+    cy.mount(<BankAccountList bankAccounts={bankAccounts} deleteBankAccount={deleteBankAccount} />);
     cy.get("[data-test=bankaccount-delete]").should("have.length", 1);
   });
 
   it("calls deleteBankAccount when delete is clicked", () => {
     const deleteBankAccount = cy.stub();
-    cy.mount(
-      <BankAccountList bankAccounts={bankAccounts} deleteBankAccount={deleteBankAccount} />
-    );
+    cy.mount(<BankAccountList bankAccounts={bankAccounts} deleteBankAccount={deleteBankAccount} />);
     cy.get("[data-test=bankaccount-delete]").click();
     cy.wrap(deleteBankAccount).should("have.been.calledOnce");
   });

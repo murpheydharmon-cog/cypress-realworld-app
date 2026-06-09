@@ -60,6 +60,7 @@
     "@faker-js/faker": "^9",
     "@percy/cli": "^1.27.4",
     "@percy/cypress": "3.1.6",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
     "@types/bcryptjs": "2.4.2",

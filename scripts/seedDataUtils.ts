@@ -122,7 +122,7 @@ export const createFakeUser = (): User => {
     username: faker.internet.username(),
     password: passwordHash,
     email: faker.internet.email(),
-    phoneNumber: faker.phone.number({ style: 'national' }),
+    phoneNumber: faker.phone.number({ style: "national" }),
     avatar: getUserAvatar(id),
     defaultPrivacyLevel: faker.helpers.arrayElement([
       DefaultPrivacyLevel.public,
@@ -203,7 +203,10 @@ export const createTransaction = (
   const createdAt = faker.date.past();
   const modifiedAt = faker.date.recent();
 
-  const status = faker.helpers.arrayElement([TransactionStatus.pending, TransactionStatus.complete]);
+  const status = faker.helpers.arrayElement([
+    TransactionStatus.pending,
+    TransactionStatus.complete,
+  ]);
 
   let requestStatus = "";
 

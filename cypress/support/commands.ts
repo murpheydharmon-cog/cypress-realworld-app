@@ -168,15 +168,12 @@ Cypress.Commands.add("loginByXstate", (username, password = Cypress.env("default
     });
 });
 
-Cypress.Commands.add(
-  "loginBySession",
-  (username, password = Cypress.env("defaultPassword")) => {
-    cy.session([username, password], () => {
-      cy.loginByXstate(username, password);
-    });
-    cy.visit("/");
-  }
-);
+Cypress.Commands.add("loginBySession", (username, password = Cypress.env("defaultPassword")) => {
+  cy.session([username, password], () => {
+    cy.loginByXstate(username, password);
+  });
+  cy.visit("/");
+});
 
 Cypress.Commands.add("logoutByXstate", () => {
   const log = Cypress.log({
