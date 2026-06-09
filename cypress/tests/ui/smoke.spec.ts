@@ -35,6 +35,9 @@ describe("Smoke Tests", { tags: ["@smoke"] }, function () {
     cy.getBySelLike("return-to-transactions").click();
     cy.wait("@getPublicTransactions");
 
+    cy.getBySelLike("personal-tab").click();
+    cy.getBySelLike("personal-tab").should("have.class", "Mui-selected");
+
     cy.getBySelLike("transaction-item").first().should("contain", "Smoke test payment");
   });
 });
