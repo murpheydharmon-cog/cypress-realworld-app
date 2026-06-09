@@ -41,6 +41,15 @@ export default defineConfig(({ mode }) => {
       setupFiles: "./src/setup-tests.js",
       exclude: ["node_modules", "cypress", "dist"],
       fileParallelism: false, // #1666: Run tests sequentially to avoid race conditions with shared database.json file.
+      coverage: {
+        provider: "istanbul",
+        thresholds: {
+          statements: 70,
+          branches: 60,
+          functions: 70,
+          lines: 70,
+        },
+      },
     },
   };
 });
