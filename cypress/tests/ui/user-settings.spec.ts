@@ -23,6 +23,8 @@ describe("User Settings", function () {
     cy.wait("@getNotifications");
     cy.getBySel("user-settings-form").should("be.visible");
     cy.location("pathname").should("include", "/user/settings");
+    cy.injectAxe();
+    cy.checkA11y();
 
     cy.visualSnapshot("User Settings Form");
   });

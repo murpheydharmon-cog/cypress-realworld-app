@@ -8,6 +8,9 @@ import { isMobile } from "./utils";
 // Import Cypress Percy plugin command (https://docs.percy.io/docs/cypress)
 import "@percy/cypress";
 
+// Import cypress-axe for accessibility testing
+import "cypress-axe";
+
 // Import commands for third-party auth providers
 import "./auth-provider-commands/auth0";
 import "./auth-provider-commands/okta";

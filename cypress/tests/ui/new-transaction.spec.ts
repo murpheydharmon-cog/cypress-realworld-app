@@ -42,6 +42,8 @@ describe("New Transaction", function () {
 
     cy.getBySelLike("new-transaction").click();
     cy.wait("@allUsers");
+    cy.injectAxe();
+    cy.checkA11y();
 
     cy.getBySel("user-list-search-input").type(ctx.contact!.firstName, { force: true });
     cy.wait("@usersSearch");
