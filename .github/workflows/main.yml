@@ -54,6 +54,8 @@ jobs:
             spec: "cypress/tests/ui/new-transaction.spec.ts,cypress/tests/ui/notifications.spec.ts"
           - name: "UI Feeds & Views"
             spec: "cypress/tests/ui/transaction-feeds.spec.ts,cypress/tests/ui/transaction-view.spec.ts"
+          - name: "UI Accessibility & Smoke"
+            spec: "cypress/tests/ui/accessibility.spec.ts,cypress/tests/ui/smoke.spec.ts"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,8 +81,7 @@ jobs:
           wait-on-timeout: 120
           browser: chrome
           record: true
-          parallel: true
-          group: "UI - Chrome"
+          group: ${{ matrix.name }}
           spec: ${{ matrix.spec }}
           config-file: cypress.config.ts
         env:
