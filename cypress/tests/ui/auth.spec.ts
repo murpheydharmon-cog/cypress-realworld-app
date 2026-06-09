@@ -27,7 +27,7 @@ describe("User Sign-up and Login", function () {
 
   it("should redirect to the home page after login", function () {
     cy.database("find", "users").then((user: User) => {
-      cy.login(user.username, "s3cret", { rememberUser: true });
+      cy.loginByXstate(user.username);
     });
     cy.location("pathname").should("equal", "/");
   });

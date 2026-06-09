@@ -5,7 +5,7 @@ describe("Cypress Studio Demo", function () {
     cy.task("db:seed");
 
     cy.database("find", "users").then((user: User) => {
-      cy.login(user.username, "s3cret", { rememberUser: true });
+      cy.loginByXstate(user.username);
     });
   });
   it("create new transaction", function () {
