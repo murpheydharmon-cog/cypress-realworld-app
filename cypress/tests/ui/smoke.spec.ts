@@ -32,7 +32,7 @@ describe("Smoke Tests", { tags: ["@smoke"] }, function () {
       .should("be.visible")
       .and("have.text", "Transaction Submitted!");
 
-    cy.getBySel("return-to-transactions").click();
+    cy.getBySelLike("return-to-transactions").click();
     cy.wait("@getPublicTransactions");
 
     cy.getBySelLike("transaction-item").first().should("contain", "Smoke test payment");
