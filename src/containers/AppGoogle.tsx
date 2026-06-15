@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import { useActor, useMachine } from "@xstate/react";
 import { Container, CssBaseline } from "@mui/material";
+import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from "@react-oauth/google";
 
 import { snackbarMachine } from "../machines/snackbarMachine";
 import { notificationsMachine } from "../machines/notificationsMachine";
@@ -9,7 +10,6 @@ import { authService } from "../machines/authMachine";
 import AlertBar from "../components/AlertBar";
 import { bankAccountsMachine } from "../machines/bankAccountsMachine";
 import PrivateRoutesContainer from "./PrivateRoutesContainer";
-import { GoogleLogin, useGoogleLogin } from "@matheusluizn/react-google-login";
 
 // @ts-ignore
 if (window.Cypress) {
@@ -56,50 +56,57 @@ const AppGoogle: React.FC = () => {
         token,
       });
     }, []);
-  } else {
-    useGoogleLogin({
-      clientId: process.env.VITE_GOOGLE_CLIENTID!,
-      onSuccess: (res) => {
-        console.log("onSuccess", res);
-        // @ts-ignore
-        authService.send("GOOGLE", { user: res.profileObj, token: res.tokenId });
-      },
-      cookiePolicy: "single_host_origin",
-      isSignedIn: true,
-    });
   }
+
+  const handleGoogleSuccess = (response: CredentialResponse) => {
+    if (response.credential) {
+      const base64Url = response.credential.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const payload = JSON.parse(atob(base64));
+      const user = {
+        email: payload.email,
+        name: payload.name,
+        givenName: payload.given_name,
+        familyName: payload.family_name,
+        imageUrl: payload.picture,
+        googleId: payload.sub,
+      };
+      authService.send("GOOGLE", { user, token: response.credential });
+    }
+  };
 
   const isLoggedIn = authState.matches("authorized");
 
   return (
-    <Root className={classes.root}>
-      <CssBaseline />
+    <GoogleOAuthProvider clientId={process.env.VITE_GOOGLE_CLIENTID!}>
+      <Root className={classes.root}>
+        <CssBaseline />
 
-      {isLoggedIn && (
-        <PrivateRoutesContainer
-          isLoggedIn={isLoggedIn}
-          notificationsService={notificationsService}
-          authService={authService}
-          snackbarService={snackbarService}
-          bankAccountsService={bankAccountsService}
-        />
-      )}
+        {isLoggedIn && (
+          <PrivateRoutesContainer
+            isLoggedIn={isLoggedIn}
+            notificationsService={notificationsService}
+            authService={authService}
+            snackbarService={snackbarService}
+            bankAccountsService={bankAccountsService}
+          />
+        )}
 
-      {authState.matches("unauthorized") && (
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
-          <div className={classes.paper}>
-            <GoogleLogin
-              clientId={process.env.VITE_GOOGLE_CLIENTID!}
-              buttonText="Login"
-              cookiePolicy={"single_host_origin"}
-            />
-          </div>
-        </Container>
-      )}
+        {authState.matches("unauthorized") && (
+          <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.error("Google Login Failed")}
+              />
+            </div>
+          </Container>
+        )}
 
-      <AlertBar snackbarService={snackbarService} />
-    </Root>
+        <AlertBar snackbarService={snackbarService} />
+      </Root>
+    </GoogleOAuthProvider>
   );
 };
 
