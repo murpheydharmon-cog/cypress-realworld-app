@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { styled } from "@mui/material/styles";
 import { get } from "lodash/fp";
 import { useTheme, useMediaQuery, Divider } from "@mui/material";
@@ -21,6 +21,27 @@ const Root = styled("div")({
     overflow: "auto",
     flexDirection: "column",
   },
+});
+
+interface RowItemData {
+  transactions: TransactionResponseItem[];
+  isMobile: boolean;
+}
+
+const Row = React.memo(({ index, style, data }: ListChildComponentProps<RowItemData>) => {
+  const { transactions, isMobile } = data;
+  const transaction = get(index, transactions);
+
+  if (index < transactions.length) {
+    return (
+      <div style={style}>
+        <TransactionItem transaction={transaction} />
+        <Divider variant={isMobile ? "fullWidth" : "inset"} />
+      </div>
+    );
+  }
+
+  return null;
 });
 
 export interface TransactionListProps {
@@ -68,20 +89,10 @@ const TransactionInfiniteList: React.FC<TransactionListProps> = ({
     isLoadingRef.current = false;
   }, [transactions.length]);
 
-  const Row = ({ index, style }: ListChildComponentProps) => {
-    const transaction = get(index, transactions);
-
-    if (index < transactions.length) {
-      return (
-        <div style={style}>
-          <TransactionItem transaction={transaction} />
-          <Divider variant={isMobile ? "fullWidth" : "inset"} />
-        </div>
-      );
-    }
-
-    return null;
-  };
+  const itemData = useMemo<RowItemData>(
+    () => ({ transactions, isMobile }),
+    [transactions, isMobile]
+  );
 
   return (
     <Root data-test="transaction-list" className={classes.transactionList}>
@@ -90,6 +101,7 @@ const TransactionInfiniteList: React.FC<TransactionListProps> = ({
         width={listWidth}
         itemSize={itemSize}
         itemCount={itemCount}
+        itemData={itemData}
         onItemsRendered={handleItemsRendered}
       >
         {Row}
