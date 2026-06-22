@@ -81,7 +81,7 @@ jobs:
           wait-on-timeout: 120
           browser: chrome
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
-          group: ${{ matrix.name }}
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && matrix.name || '' }}
           spec: ${{ matrix.spec }}
           config-file: cypress.config.ts
         env:
@@ -126,7 +126,7 @@ jobs:
           browser: chrome
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
           parallel: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
-          group: "UI - Chrome - Mobile"
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && 'UI - Chrome - Mobile' || '' }}
           spec: cypress/tests/ui/*
           config-file: cypress.config.ts
         env:
@@ -171,7 +171,7 @@ jobs:
           browser: firefox
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
           parallel: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
-          group: "UI - Firefox"
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && 'UI - Firefox' || '' }}
           spec: cypress/tests/ui/*
           config-file: cypress.config.ts
         env:
@@ -217,7 +217,7 @@ jobs:
           browser: firefox
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
           parallel: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
-          group: "UI - Firefox - Mobile"
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && 'UI - Firefox - Mobile' || '' }}
           spec: cypress/tests/ui/*
           config-file: cypress.config.ts
         env:
