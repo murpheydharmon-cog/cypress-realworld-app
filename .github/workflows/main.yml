@@ -43,14 +43,19 @@ jobs:
       options: --user 1001
     needs: install
     strategy:
-      # when one test fails, DO NOT cancel the other
-      # containers, because this will kill Cypress processes
-      # leaving Cypress Cloud hanging ...
-      # https://github.com/cypress-io/github-action/issues/48
       fail-fast: false
       matrix:
-        # run copies of the current job in parallel
-        containers: [1, 2, 3, 4, 5]
+        include:
+          - name: "API Tests"
+            spec: "cypress/tests/api/*"
+          - name: "UI Auth & Settings"
+            spec: "cypress/tests/ui/auth.spec.ts,cypress/tests/ui/bankaccounts.spec.ts,cypress/tests/ui/user-settings.spec.ts"
+          - name: "UI Transactions & Notifications"
+            spec: "cypress/tests/ui/new-transaction.spec.ts,cypress/tests/ui/notifications.spec.ts"
+          - name: "UI Feeds & Views"
+            spec: "cypress/tests/ui/transaction-feeds.spec.ts,cypress/tests/ui/transaction-view.spec.ts"
+          - name: "UI Accessibility & Smoke"
+            spec: "cypress/tests/ui/accessibility.spec.ts,cypress/tests/ui/smoke.spec.ts"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,7 +72,7 @@ jobs:
       - name: __e Dir
         run: ls /__e
 
-      - name: "UI Tests - Chrome"
+      - name: "${{ matrix.name }}"
         uses: cypress-io/github-action@v6
         with:
           build: yarn cypress info
@@ -75,16 +80,13 @@ jobs:
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           browser: chrome
-          record: true
-          parallel: true
-          group: "UI - Chrome"
-          spec: cypress/tests/ui/*
+          record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && matrix.name || '' }}
+          spec: ${{ matrix.spec }}
           config-file: cypress.config.ts
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: "cypress:server:args"
 
@@ -122,9 +124,9 @@ jobs:
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           browser: chrome
-          record: true
-          parallel: true
-          group: "UI - Chrome - Mobile"
+          record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          parallel: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && 'UI - Chrome - Mobile' || '' }}
           spec: cypress/tests/ui/*
           config-file: cypress.config.ts
         env:
@@ -167,9 +169,9 @@ jobs:
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           browser: firefox
-          record: true
-          parallel: true
-          group: "UI - Firefox"
+          record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          parallel: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && 'UI - Firefox' || '' }}
           spec: cypress/tests/ui/*
           config-file: cypress.config.ts
         env:
@@ -213,9 +215,9 @@ jobs:
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           browser: firefox
-          record: true
-          parallel: true
-          group: "UI - Firefox - Mobile"
+          record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          parallel: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
+          group: ${{ secrets.CYPRESS_RECORD_KEY != '' && 'UI - Firefox - Mobile' || '' }}
           spec: cypress/tests/ui/*
           config-file: cypress.config.ts
         env:

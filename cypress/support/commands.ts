@@ -8,6 +8,9 @@ import { isMobile } from "./utils";
 // Import Cypress Percy plugin command (https://docs.percy.io/docs/cypress)
 import "@percy/cypress";
 
+// Import cypress-axe for accessibility testing
+import "cypress-axe";
+
 // Import commands for third-party auth providers
 import "./auth-provider-commands/auth0";
 import "./auth-provider-commands/okta";
@@ -163,6 +166,13 @@ Cypress.Commands.add("loginByXstate", (username, password = Cypress.env("default
       log.snapshot("after");
       log.end();
     });
+});
+
+Cypress.Commands.add("loginBySession", (username, password = Cypress.env("defaultPassword")) => {
+  cy.session([username, password], () => {
+    cy.loginByXstate(username, password);
+  });
+  cy.visit("/");
 });
 
 Cypress.Commands.add("logoutByXstate", () => {

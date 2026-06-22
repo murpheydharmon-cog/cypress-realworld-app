@@ -4,6 +4,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import Promise from "bluebird";
 import codeCoverageTask from "@cypress/code-coverage/task";
+import { plugin as registerGrepPlugin } from "@cypress/grep/plugin";
 import { defineConfig } from "cypress";
 import viteConfig from "./vite.cypress.config.ts";
 
@@ -69,7 +70,6 @@ export default defineConfig({
     supportFile: "cypress/support/e2e.ts",
     viewportHeight: 1000,
     viewportWidth: 1280,
-    experimentalRunAllSpecs: true,
     experimentalStudio: true,
     setupNodeEvents(on, config) {
       const testDataApiEndpoint = `${config.env.apiUrl}/testData`;
@@ -132,6 +132,7 @@ export default defineConfig({
       });
 
       codeCoverageTask(on, config);
+      registerGrepPlugin(config);
       return config;
     },
   },
