@@ -4,7 +4,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import Promise from "bluebird";
 import codeCoverageTask from "@cypress/code-coverage/task";
-import registerGrepPlugin from "@cypress/grep/src/plugin";
+import { plugin as registerGrepPlugin } from "@cypress/grep/plugin";
 import { defineConfig } from "cypress";
 import viteConfig from "./vite.cypress.config.ts";
 

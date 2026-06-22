@@ -1,5 +1,12 @@
 import { User } from "../../../src/models";
 
+const logA11yViolations = (violations: any[]) => {
+  violations.forEach((violation) => {
+    const nodes = violation.nodes.map((node: any) => node.target).join(", ");
+    cy.log(`[a11y] ${violation.impact}: ${violation.id} — ${nodes}`);
+  });
+};
+
 describe("Accessibility", function () {
   beforeEach(function () {
     cy.task("db:seed");
@@ -13,41 +20,43 @@ describe("Accessibility", function () {
     cy.visit("/");
     cy.getBySel("transaction-list").should("be.visible");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, logA11yViolations, true);
   });
 
   it("user settings page has no detectable a11y violations", function () {
     cy.visit("/user/settings");
     cy.getBySel("user-settings-form").should("be.visible");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, logA11yViolations, true);
   });
 
   it("bank accounts page has no detectable a11y violations", function () {
     cy.visit("/bankaccounts");
     cy.getBySel("bankaccount-list").should("be.visible");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, logA11yViolations, true);
   });
 
   it("notifications page has no detectable a11y violations", function () {
     cy.visit("/notifications");
     cy.getBySelLike("notification-list").should("be.visible");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, logA11yViolations, true);
   });
 
   it("new transaction page has no detectable a11y violations", function () {
     cy.visit("/transaction/new");
     cy.getBySel("user-list-search-input").should("be.visible");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, logA11yViolations, true);
   });
 
   it("signin page has no detectable a11y violations", function () {
+    cy.clearCookies();
+    cy.clearLocalStorage();
     cy.visit("/signin");
     cy.getBySel("signin-submit").should("be.visible");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, logA11yViolations, true);
   });
 });

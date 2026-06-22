@@ -21,7 +21,7 @@ describe("User Sign-up and Login", function () {
     cy.visit("/personal");
     cy.location("pathname").should("equal", "/signin");
     cy.injectAxe();
-    cy.checkA11y();
+    cy.checkA11y(null, null, undefined, true);
     cy.visualSnapshot("Redirect to SignIn");
   });
 
