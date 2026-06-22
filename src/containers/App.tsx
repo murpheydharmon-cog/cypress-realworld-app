@@ -57,7 +57,7 @@ const App: React.FC = () => {
         navigate("/");
       }
     }
-    if (authState.matches("unauthorized") && prev.matches("signup")) {
+    if (authState.matches("unauthorized") && prev.matches("signup") && !authState.context.message) {
       navigate("/signin");
     }
   }, [authState, navigate, location.pathname]);
