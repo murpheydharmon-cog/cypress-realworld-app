@@ -34,6 +34,15 @@ if (window.Cypress) {
 }
 
 /* istanbul ignore next */
+const OktaLoginRedirect: React.FC = () => {
+  const { oktaAuth } = useOktaAuth();
+  useEffect(() => {
+    oktaAuth.signInWithRedirect();
+  }, [oktaAuth]);
+  return null;
+};
+
+/* istanbul ignore next */
 const AppOkta: React.FC = () => {
   const { authState: oktaAuthState, oktaAuth: oktaAuthService } = useOktaAuth();
 
@@ -84,7 +93,7 @@ const AppOkta: React.FC = () => {
       {authState.matches("unauthorized") && (
         <Routes>
           <Route path="/implicit/callback" element={<LoginCallback />} />
-          <Route path="*" element={null} />
+          <Route path="*" element={<OktaLoginRedirect />} />
         </Routes>
       )}
 

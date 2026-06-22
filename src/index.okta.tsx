@@ -25,14 +25,14 @@ const theme = createTheme(
 
 const root = createRoot(document.getElementById("root")!);
 
+const oktaAuth = new OktaAuth({
+  issuer: `https://${process.env.VITE_OKTA_DOMAIN}/oauth2/default`,
+  clientId: process.env.VITE_OKTA_CLIENTID,
+  redirectUri: window.location.origin + "/implicit/callback",
+});
+
 function OktaWrapper() {
   const navigate = useNavigate();
-
-  const oktaAuth = new OktaAuth({
-    issuer: `https://${process.env.VITE_OKTA_DOMAIN}/oauth2/default`,
-    clientId: process.env.VITE_OKTA_CLIENTID,
-    redirectUri: window.location.origin + "/implicit/callback",
-  });
 
   const restoreOriginalUri = (_oktaAuth: any, originalUri: string) =>
     navigate(toRelativeUrl(originalUri || "/", window.location.origin), { replace: true });

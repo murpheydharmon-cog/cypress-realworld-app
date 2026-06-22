@@ -68,37 +68,17 @@ const PrivateRoutesContainer: React.FC<Props> = ({
       />
       <Routes>
         <Route
-          path="/"
           element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <TransactionsContainer />
             </PrivateRoute>
           }
-        />
-        <Route
-          path="/public"
-          element={
-            <PrivateRoute isLoggedIn={isLoggedIn}>
-              <TransactionsContainer />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/contacts"
-          element={
-            <PrivateRoute isLoggedIn={isLoggedIn}>
-              <TransactionsContainer />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/personal"
-          element={
-            <PrivateRoute isLoggedIn={isLoggedIn}>
-              <TransactionsContainer />
-            </PrivateRoute>
-          }
-        />
+        >
+          <Route index element={null} />
+          <Route path="public" element={null} />
+          <Route path="contacts" element={null} />
+          <Route path="personal" element={null} />
+        </Route>
         <Route
           path="/user/settings"
           element={
