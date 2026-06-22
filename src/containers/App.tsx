@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { styled } from "@mui/material/styles";
-import { Switch, Route, Redirect } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router";
 import { useActor, useMachine } from "@xstate/react";
 import { CssBaseline } from "@mui/material";
 
@@ -34,6 +34,8 @@ if (window.Cypress) {
 
 const App: React.FC = () => {
   const [authState] = useActor(authService);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [, , notificationsService] = useMachine(notificationsMachine);
 
   const [, , snackbarService] = useMachine(snackbarMachine);
@@ -44,6 +46,21 @@ const App: React.FC = () => {
     authState.matches("authorized") ||
     authState.matches("refreshing") ||
     authState.matches("updating");
+
+  const prevAuthStateRef = useRef(authState);
+  useEffect(() => {
+    const prev = prevAuthStateRef.current;
+    prevAuthStateRef.current = authState;
+
+    if (authState.matches("authorized") && !prev.matches("authorized")) {
+      if (location.pathname === "/signin") {
+        navigate("/");
+      }
+    }
+    if (authState.matches("unauthorized") && prev.matches("signup") && authState.context.user) {
+      navigate("/signin");
+    }
+  }, [authState, navigate, location.pathname]);
 
   return (
     <Root className={classes.root}>
@@ -59,21 +76,11 @@ const App: React.FC = () => {
         />
       )}
       {authState.matches("unauthorized") && (
-        <Switch>
-          <Route exact path="/signup">
-            <SignUpForm authService={authService} />
-          </Route>
-          <Route exact path="/signin">
-            <SignInForm authService={authService} />
-          </Route>
-          <Route path="/*">
-            <Redirect
-              to={{
-                pathname: "/signin",
-              }}
-            />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path="/signup" element={<SignUpForm authService={authService} />} />
+          <Route path="/signin" element={<SignInForm authService={authService} />} />
+          <Route path="*" element={<Navigate to="/signin" replace />} />
+        </Routes>
       )}
       <AlertBar snackbarService={snackbarService} />
     </Root>
