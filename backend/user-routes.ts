@@ -100,8 +100,8 @@ router.patch(
     );
 
     if (isEmpty(edits)) {
-      return res.status(422).send({
-        error: "No editable fields provided",
+      return res.status(422).json({
+        errors: [{ msg: "No editable fields provided" }],
       });
     }
 
