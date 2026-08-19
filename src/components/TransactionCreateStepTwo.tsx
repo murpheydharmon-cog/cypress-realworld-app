@@ -32,7 +32,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 }));
 
 const validationSchema = object({
-  amount: number().required("Please enter a valid amount"),
+  amount: number()
+    .moreThan(0, "Please enter a valid amount")
+    .required("Please enter a valid amount"),
   description: string().required("Please enter a note"),
   senderId: string(),
   receiverId: string(),
