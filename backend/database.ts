@@ -63,6 +63,7 @@ import {
   formatFullName,
   isLikeNotification,
   isCommentNotification,
+  isValidTransactionAmount,
 } from "../src/utils/transactionUtils";
 import { DbSchema } from "../src/models/db-schema";
 
@@ -488,7 +489,16 @@ export const getPublicTransactionsByQuery = (userId: string, query: TransactionQ
 
 export const resetPayAppBalance = constant(0);
 
+// balance arithmetic relies on absolute values, so a non-positive amount would invert it
+const assertValidTransactionAmount = (transaction: Transaction) => {
+  if (!isValidTransactionAmount(get("amount", transaction))) {
+    throw new Error("Invalid transaction amount");
+  }
+};
+
 export const debitPayAppBalance = (user: User, transaction: Transaction) => {
+  assertValidTransactionAmount(transaction);
+
   if (hasSufficientFunds(user, transaction)) {
     flow(getChargeAmount, savePayAppBalance(user))(user, transaction);
   } else {
@@ -502,8 +512,11 @@ export const debitPayAppBalance = (user: User, transaction: Transaction) => {
   }
 };
 
-export const creditPayAppBalance = (user: User, transaction: Transaction) =>
-  flow(getPayAppCreditedAmount, savePayAppBalance(user))(user, transaction);
+export const creditPayAppBalance = (user: User, transaction: Transaction) => {
+  assertValidTransactionAmount(transaction);
+
+  return flow(getPayAppCreditedAmount, savePayAppBalance(user))(user, transaction);
+};
 
 /* istanbul ignore next */
 export const createBankTransferWithdrawal = curry(
@@ -526,13 +539,19 @@ export const createTransaction = (
   transactionType: "payment" | "request",
   transactionDetails: TransactionPayload
 ): Transaction => {
+  const amount = Math.round(Number(transactionDetails.amount) * 100);
+
+  if (!isValidTransactionAmount(amount)) {
+    throw new Error("Invalid transaction amount");
+  }
+
   const sender = getUserById(userId);
   const receiver = getUserById(transactionDetails.receiverId);
   const transaction: Transaction = {
     id: shortid(),
     uuid: v4(),
     source: transactionDetails.source,
-    amount: transactionDetails.amount * 100,
+    amount,
     description: transactionDetails.description,
     receiverId: transactionDetails.receiverId,
     senderId: userId,

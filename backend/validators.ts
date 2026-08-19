@@ -7,6 +7,7 @@ import {
   NotificationsType,
 } from "../src/models";
 import { includes } from "lodash/fp";
+import { MAX_TRANSACTION_AMOUNT, MIN_TRANSACTION_AMOUNT } from "../src/utils/transactionUtils";
 
 const TransactionStatusValues = Object.values(TransactionStatus);
 const RequestStatusValues = Object.values(TransactionRequestStatus);
@@ -84,7 +85,10 @@ export const isTransactionPayloadValidator = [
   body("source").optional().isString().trim(),
   body("receiverId").isString().trim(),
   body("description").isString().trim(),
-  body("amount").isNumeric().trim().toInt(),
+  body("amount")
+    .isFloat({ min: MIN_TRANSACTION_AMOUNT, max: MAX_TRANSACTION_AMOUNT })
+    .trim()
+    .toFloat(),
 ];
 
 export const isTransactionPatchValidator = [body("requestStatus").isIn(RequestStatusValues)];
