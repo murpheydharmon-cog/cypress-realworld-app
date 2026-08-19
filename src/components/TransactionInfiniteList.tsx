@@ -67,8 +67,7 @@ const TransactionInfiniteList: React.FC<TransactionListProps> = ({
     });
   };
 
-  const isItemLoaded = (index: number) =>
-    !pagination.hasNextPages || index < transactions.length;
+  const isItemLoaded = (index: number) => !pagination.hasNextPages || index < transactions.length;
 
   const removePx = (str: string) => +str.slice(0, str.length - 2);
 
