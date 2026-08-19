@@ -57,6 +57,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
+const isProduction = process.env.NODE_ENV === "production";
+
+/* istanbul ignore if */
+if (isProduction) {
+  // Trust the first proxy hop so secure cookies work behind a TLS-terminating proxy
+  app.set("trust proxy", 1);
+}
 
 app.use(
   session({
@@ -67,7 +74,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
     },
   })
 );
