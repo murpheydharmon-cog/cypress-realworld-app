@@ -1,4 +1,5 @@
 import express from "express";
+import { randomBytes } from "crypto";
 import { join } from "path";
 import logger from "morgan";
 import passport from "passport";
@@ -55,12 +56,26 @@ app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
+const isProduction = process.env.NODE_ENV === "production";
+
+/* istanbul ignore if */
+if (isProduction) {
+  // Trust the first proxy hop so secure cookies work behind a TLS-terminating proxy
+  app.set("trust proxy", 1);
+}
+
 app.use(
   session({
-    secret: "session secret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     unset: "destroy",
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: isProduction,
+    },
   })
 );
 app.use(passport.initialize());
