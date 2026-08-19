@@ -10,7 +10,7 @@ type TestTransactionsCtx = {
   bankAccountId?: string;
 };
 
-const getFakeAmount = () => parseInt(faker.finance.amount(), 10);
+const getFakeAmount = () => parseInt(faker.finance.amount(1, 1000), 10);
 const apiTransactions = `${Cypress.env("apiUrl")}/transactions`;
 
 describe("Transactions API", function () {

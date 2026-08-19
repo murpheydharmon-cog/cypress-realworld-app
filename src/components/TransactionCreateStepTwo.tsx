@@ -5,6 +5,7 @@ import { Formik, Form, Field, FieldProps } from "formik";
 import { string, object, number } from "yup";
 import { Paper, Typography, Button, Grid, Container, Avatar, Box, TextField } from "@mui/material";
 import { User } from "../models";
+import { MAX_TRANSACTION_AMOUNT, MIN_TRANSACTION_AMOUNT } from "../utils/transactionUtils";
 
 const PREFIX = "TransactionCreateStepTwo";
 
@@ -33,7 +34,8 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const validationSchema = object({
   amount: number()
-    .moreThan(0, "Please enter a valid amount")
+    .min(MIN_TRANSACTION_AMOUNT, "Please enter a valid amount")
+    .max(MAX_TRANSACTION_AMOUNT, "Please enter a valid amount")
     .required("Please enter a valid amount"),
   description: string().required("Please enter a note"),
   senderId: string(),

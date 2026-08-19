@@ -539,7 +539,7 @@ export const createTransaction = (
   transactionType: "payment" | "request",
   transactionDetails: TransactionPayload
 ): Transaction => {
-  const amount = Number(transactionDetails.amount) * 100;
+  const amount = Math.round(Number(transactionDetails.amount) * 100);
 
   if (!isValidTransactionAmount(amount)) {
     throw new Error("Invalid transaction amount");

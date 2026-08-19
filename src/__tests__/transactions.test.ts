@@ -118,6 +118,8 @@ describe("Transactions", () => {
     const sender: User = getAllUsers()[0];
     const receiver: User = getAllUsers()[1];
     const senderBankAccount = getBankAccountsByUserId(sender.id)[0];
+    const senderBalance = sender.balance;
+    const receiverBalance = receiver.balance;
 
     const paymentDetails: TransactionPayload = {
       source: senderBankAccount.id!,
@@ -134,8 +136,8 @@ describe("Transactions", () => {
       createTransaction(sender.id, "payment", { ...paymentDetails, amount: 0 })
     ).toThrow();
 
-    expect(getUserById(sender.id).balance).toBe(sender.balance);
-    expect(getUserById(receiver.id).balance).toBe(receiver.balance);
+    expect(getUserById(sender.id).balance).toBe(senderBalance);
+    expect(getUserById(receiver.id).balance).toBe(receiverBalance);
   });
 
   it("should create a request", () => {
