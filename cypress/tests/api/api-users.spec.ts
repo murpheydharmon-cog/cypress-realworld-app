@@ -135,7 +135,7 @@ describe("Users API", function () {
       });
     });
 
-    it("creates a new user with an account balance in cents", function () {
+    it("ignores a client-supplied account balance", function () {
       const firstName = faker.name.firstName();
 
       cy.request("POST", `${apiUsers}`, {
@@ -150,7 +150,7 @@ describe("Users API", function () {
       }).then((response) => {
         expect(response.status).to.eq(201);
         expect(response.body.user).to.contain({ firstName });
-        expect(response.body.user.balance).to.equal(100_00);
+        expect(response.body.user.balance).to.equal(0);
       });
     });
 
