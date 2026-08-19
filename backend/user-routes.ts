@@ -1,7 +1,7 @@
 ///<reference path="types.ts" />
 
 import express from "express";
-import { isEqual, pick } from "lodash/fp";
+import { isEmpty, isEqual, pick } from "lodash/fp";
 
 import {
   getAllUsers,
@@ -98,6 +98,12 @@ router.patch(
       ["firstName", "lastName", "email", "phoneNumber", "avatar", "defaultPrivacyLevel"],
       req.body
     );
+
+    if (isEmpty(edits)) {
+      return res.status(422).send({
+        error: "No editable fields provided",
+      });
+    }
 
     updateUserById(userId, edits);
 
