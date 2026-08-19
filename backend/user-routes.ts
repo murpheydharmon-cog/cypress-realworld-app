@@ -86,7 +86,18 @@ router.patch(
   (req, res) => {
     const { userId } = req.params;
 
-    const edits: User = req.body;
+    // Permission: account owner
+    /* istanbul ignore next */
+    if (!isEqual(userId, req.user?.id)) {
+      return res.status(401).send({
+        error: "Unauthorized",
+      });
+    }
+
+    const edits: Partial<User> = pick(
+      ["firstName", "lastName", "email", "phoneNumber", "avatar", "defaultPrivacyLevel"],
+      req.body
+    );
 
     updateUserById(userId, edits);
 
