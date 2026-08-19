@@ -204,7 +204,11 @@ const saveUser = (user: User) => {
 export const updateUserById = (userId: string, edits: Partial<User>) => {
   const user = getUserById(userId);
 
-  db.get(USER_TABLE).find(user).assign(edits).write();
+  const safeEdits = edits.password
+    ? { ...edits, password: bcrypt.hashSync(edits.password, 10) }
+    : edits;
+
+  db.get(USER_TABLE).find(user).assign(safeEdits).write();
 };
 
 // Contact
