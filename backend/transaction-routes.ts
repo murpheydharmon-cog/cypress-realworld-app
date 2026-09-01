@@ -1,13 +1,14 @@
 ///<reference path="types.ts" />
 
 import express from "express";
-import { remove, isEmpty, slice, concat } from "lodash/fp";
+import { remove, isEmpty, slice, concat, isEqual, pick } from "lodash/fp";
 import {
   getTransactionsForUserContacts,
   createTransaction,
   updateTransactionById,
   getPublicTransactionsDefaultSort,
   getTransactionByIdForApi,
+  getTransactionById,
   getTransactionsForUserForApi,
   getPublicTransactionsByQuery,
 } from "./database";
@@ -21,7 +22,7 @@ import {
   isTransactionPatchValidator,
   isTransactionPublicQSValidator,
 } from "./validators";
-import { getPaginatedItems } from "../src/utils/transactionUtils";
+import { getPaginatedItems, isPendingRequestTransaction } from "../src/utils/transactionUtils";
 const router = express.Router();
 
 // Routes
@@ -175,8 +176,26 @@ router.patch(
   (req, res) => {
     const { transactionId } = req.params;
 
+    const transaction = getTransactionById(transactionId);
+
+    if (!transaction) {
+      return res.status(404).send({
+        error: "Not Found",
+      });
+    }
+
+    // Permission: the receiver of a pending request resolves it
+    if (
+      !isEqual(transaction.receiverId, req.user?.id) ||
+      !isPendingRequestTransaction(transaction)
+    ) {
+      return res.status(401).send({
+        error: "Unauthorized",
+      });
+    }
+
     /* istanbul ignore next */
-    updateTransactionById(transactionId, req.body);
+    updateTransactionById(transactionId, pick(["requestStatus"], req.body));
 
     res.sendStatus(204);
   }
