@@ -6,6 +6,8 @@ type TestTransactionsCtx = {
   receiver?: User;
   authenticatedUser?: User;
   transactionId?: string;
+  pendingRequestTransactionId?: string;
+  otherUsersTransaction?: Transaction;
   notificationId?: string;
   bankAccountId?: string;
 };
@@ -36,6 +38,19 @@ describe("Transactions API", function () {
 
     cy.database("find", "transactions").then((transaction: Transaction) => {
       ctx.transactionId = transaction.id;
+    });
+
+    cy.database("filter", "transactions").then((transactions: Transaction[]) => {
+      ctx.pendingRequestTransactionId = transactions.find(
+        (transaction) =>
+          isEqual(transaction.receiverId, ctx.authenticatedUser!.id) &&
+          isEqual(transaction.requestStatus, "pending")
+      )!.id;
+
+      ctx.otherUsersTransaction = transactions.find(
+        (transaction) =>
+          !isSenderOrReceiver(transaction) && isEqual(transaction.requestStatus, "pending")
+      );
     });
 
     cy.database("find", "notifications").then((notification: NotificationType) => {
@@ -145,11 +160,31 @@ describe("Transactions API", function () {
 
   context("PATCH /transactions/:transactionId", function () {
     it("updates a transaction", function () {
-      cy.request("PATCH", `${apiTransactions}/${ctx.transactionId}`, {
+      cy.request("PATCH", `${apiTransactions}/${ctx.pendingRequestTransactionId}`, {
         requestStatus: "rejected",
       }).then((response) => {
         expect(response.status).to.eq(204);
       });
+    });
+
+    it("errors when updating a transaction the user is not party to", function () {
+      cy.request({
+        method: "PATCH",
+        url: `${apiTransactions}/${ctx.otherUsersTransaction!.id}`,
+        failOnStatusCode: false,
+        body: {
+          requestStatus: "accepted",
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(401);
+      });
+
+      cy.database("find", "transactions", { id: ctx.otherUsersTransaction!.id }).then(
+        (transaction: Transaction) => {
+          expect(transaction.requestStatus).to.eq(ctx.otherUsersTransaction!.requestStatus);
+          expect(transaction.status).to.eq(ctx.otherUsersTransaction!.status);
+        }
+      );
     });
 
     it("errors when an invalid field sent", function () {
