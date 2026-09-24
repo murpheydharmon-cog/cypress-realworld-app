@@ -47,7 +47,6 @@ router.delete(
 
     const contact = getContactBy("id", contactId);
 
-    /* istanbul ignore next */
     if (!contact || contact.userId !== req.user?.id) {
       return res.status(404).json({ error: "Contact not found" });
     }
