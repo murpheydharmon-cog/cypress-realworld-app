@@ -2,7 +2,12 @@
 
 import express from "express";
 
-import { getContactsByUsername, removeContactById, createContactForUser } from "./database";
+import {
+  getContactsByUsername,
+  removeContactById,
+  createContactForUser,
+  getContactBy,
+} from "./database";
 import { ensureAuthenticated, validateMiddleware } from "./helpers";
 import { shortIdValidation } from "./validators";
 const router = express.Router();
@@ -39,6 +44,13 @@ router.delete(
   validateMiddleware([shortIdValidation("contactId")]),
   (req, res) => {
     const { contactId } = req.params;
+
+    const contact = getContactBy("id", contactId);
+
+    /* istanbul ignore next */
+    if (!contact || contact.userId !== req.user?.id) {
+      return res.status(404).json({ error: "Contact not found" });
+    }
 
     const contacts = removeContactById(contactId);
 

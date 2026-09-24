@@ -73,5 +73,21 @@ describe("Contacts API", function () {
         expect(response.status).to.eq(200);
       });
     });
+
+    it("does not delete another user's contact", function () {
+      cy.database("find", "contacts", { userId: ctx.allUsers![1].id }).then((contact: Contact) => {
+        cy.request({
+          method: "DELETE",
+          url: `${apiContacts}/${contact.id}`,
+          failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.eq(404);
+        });
+
+        cy.database("find", "contacts", { id: contact.id }).then((stillThere: Contact) => {
+          expect(stillThere).to.not.be.undefined;
+        });
+      });
+    });
   });
 });
