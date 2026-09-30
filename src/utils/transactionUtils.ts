@@ -35,6 +35,16 @@ import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
 const timezone = "UTC";
 
+// Bounds, in dollars, accepted for a single transaction
+export const MIN_TRANSACTION_AMOUNT = 0.01;
+export const MAX_TRANSACTION_AMOUNT = 1_000_000;
+
+// amount is in cents, as stored on a Transaction
+export const isValidTransactionAmount = (amount: number) =>
+  Number.isInteger(amount) &&
+  amount >= MIN_TRANSACTION_AMOUNT * 100 &&
+  amount <= MAX_TRANSACTION_AMOUNT * 100;
+
 export const isRequestTransaction = (transaction: Transaction) =>
   flow(get("requestStatus"), negate(isEmpty))(transaction);
 

@@ -114,6 +114,32 @@ describe("Transactions", () => {
     expect(result.requestStatus).not.toBeDefined();
   });
 
+  it("should not create a payment with a non-positive amount", () => {
+    const sender: User = getAllUsers()[0];
+    const receiver: User = getAllUsers()[1];
+    const senderBankAccount = getBankAccountsByUserId(sender.id)[0];
+    const senderBalance = sender.balance;
+    const receiverBalance = receiver.balance;
+
+    const paymentDetails: TransactionPayload = {
+      source: senderBankAccount.id!,
+      senderId: sender.id,
+      receiverId: receiver.id,
+      description: `Payment: ${sender.id} to ${receiver.id}`,
+      amount: -5000,
+      privacyLevel: DefaultPrivacyLevel.public,
+      status: TransactionStatus.pending,
+    };
+
+    expect(() => createTransaction(sender.id, "payment", paymentDetails)).toThrow();
+    expect(() =>
+      createTransaction(sender.id, "payment", { ...paymentDetails, amount: 0 })
+    ).toThrow();
+
+    expect(getUserById(sender.id).balance).toBe(senderBalance);
+    expect(getUserById(receiver.id).balance).toBe(receiverBalance);
+  });
+
   it("should create a request", () => {
     const sender: User = getAllUsers()[0];
     const receiver: User = getAllUsers()[1];
