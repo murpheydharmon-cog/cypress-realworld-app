@@ -22,6 +22,19 @@ import {
 } from "./validators";
 const router = express.Router();
 
+// Fields a client is allowed to set on user create/update. Server-controlled
+// fields such as balance are intentionally excluded.
+const writableUserFields = [
+  "firstName",
+  "lastName",
+  "username",
+  "password",
+  "email",
+  "phoneNumber",
+  "avatar",
+  "defaultPrivacyLevel",
+];
+
 // Routes
 router.get("/", ensureAuthenticated, (req, res) => {
   /* istanbul ignore next */
@@ -39,7 +52,7 @@ router.get("/search", ensureAuthenticated, validateMiddleware([searchValidation]
 });
 
 router.post("/", userFieldsValidator, validateMiddleware(isUserValidator), (req, res) => {
-  const userDetails: User = req.body;
+  const userDetails: Partial<User> = pick(writableUserFields, req.body);
 
   const user = createUser(userDetails);
 
@@ -86,7 +99,7 @@ router.patch(
   (req, res) => {
     const { userId } = req.params;
 
-    const edits: User = req.body;
+    const edits: Partial<User> = pick(writableUserFields, req.body);
 
     updateUserById(userId, edits);
 
