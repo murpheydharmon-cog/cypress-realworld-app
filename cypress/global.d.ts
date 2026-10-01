@@ -126,6 +126,11 @@ declare namespace Cypress {
     loginByXstate(username: string, password?: string): Chainable<any>;
 
     /**
+     * Logs in using cy.session() to cache and restore sessions between tests
+     */
+    loginBySession(username: string, password?: string): Chainable<any>;
+
+    /**
      * Logs out via bypassing UI by triggering XState logout event
      */
     logoutByXstate(): Chainable<string>;
