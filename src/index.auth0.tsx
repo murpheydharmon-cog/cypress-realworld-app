@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { Router } from "react-router-dom";
+import { BrowserRouter, useNavigate } from "react-router";
 import {
   createTheme,
   ThemeProvider,
@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import { Auth0Provider } from "@auth0/auth0-react";
 import AppAuth0 from "./containers/AppAuth0";
-import { history } from "./utils/historyUtils";
 
 const theme = createTheme(
   adaptV4Theme({
@@ -22,15 +21,14 @@ const theme = createTheme(
 );
 
 /* istanbul ignore next */
-const onRedirectCallback = (appState: any) => {
-  history.replace((appState && appState.returnTo) || window.location.pathname);
-};
+function Auth0ProviderWithNavigate({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
 
-const root = createRoot(document.getElementById("root")!);
+  const onRedirectCallback = (appState: any) => {
+    navigate((appState && appState.returnTo) || window.location.pathname, { replace: true });
+  };
 
-/* istanbul ignore if */
-if (process.env.VITE_AUTH0) {
-  root.render(
+  return (
     <Auth0Provider
       domain={process.env.VITE_AUTH0_DOMAIN!}
       clientId={process.env.VITE_AUTH0_CLIENTID!}
@@ -40,14 +38,25 @@ if (process.env.VITE_AUTH0) {
       onRedirectCallback={onRedirectCallback}
       cacheLocation="localstorage"
     >
-      <Router history={history}>
+      {children}
+    </Auth0Provider>
+  );
+}
+
+const root = createRoot(document.getElementById("root")!);
+
+/* istanbul ignore if */
+if (process.env.VITE_AUTH0) {
+  root.render(
+    <BrowserRouter>
+      <Auth0ProviderWithNavigate>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
             <AppAuth0 />
           </ThemeProvider>
         </StyledEngineProvider>
-      </Router>
-    </Auth0Provider>
+      </Auth0ProviderWithNavigate>
+    </BrowserRouter>
   );
 } else {
   console.error("Auth0 is not configured.");
