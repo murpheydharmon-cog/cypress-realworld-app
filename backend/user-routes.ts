@@ -1,7 +1,7 @@
 ///<reference path="types.ts" />
 
 import express from "express";
-import { isEqual, pick } from "lodash/fp";
+import { isEmpty, isEqual, pick } from "lodash/fp";
 
 import {
   getAllUsers,
@@ -86,7 +86,24 @@ router.patch(
   (req, res) => {
     const { userId } = req.params;
 
-    const edits: User = req.body;
+    // Permission: account owner
+    /* istanbul ignore next */
+    if (!isEqual(userId, req.user?.id)) {
+      return res.status(401).send({
+        error: "Unauthorized",
+      });
+    }
+
+    const edits: Partial<User> = pick(
+      ["firstName", "lastName", "email", "phoneNumber", "avatar", "defaultPrivacyLevel"],
+      req.body
+    );
+
+    if (isEmpty(edits)) {
+      return res.status(422).json({
+        errors: [{ msg: "No editable fields provided" }],
+      });
+    }
 
     updateUserById(userId, edits);
 
