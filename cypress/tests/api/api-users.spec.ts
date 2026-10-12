@@ -193,6 +193,39 @@ describe("Users API", function () {
         expect(response.body.errors.length).to.eq(1);
       });
     });
+
+    it("does not allow updating another user", function () {
+      const firstName = faker.name.firstName();
+
+      cy.request({
+        method: "PATCH",
+        url: `${apiUsers}/${ctx.searchUser!.id}`,
+        failOnStatusCode: false,
+        body: { firstName },
+      }).then((response) => {
+        expect(response.status).to.eq(401);
+      });
+
+      cy.database("find", "users", { id: ctx.searchUser!.id }).then((user: User) => {
+        expect(user.firstName).to.eq(ctx.searchUser!.firstName);
+      });
+    });
+
+    it("rejects updates to balance or password", function () {
+      cy.request({
+        method: "PATCH",
+        url: `${apiUsers}/${ctx.authenticatedUser!.id}`,
+        failOnStatusCode: false,
+        body: { balance: 999999, password: "hacked" },
+      }).then((response) => {
+        expect(response.status).to.eq(422);
+      });
+
+      cy.database("find", "users", { id: ctx.authenticatedUser!.id }).then((user: User) => {
+        expect(user.balance).to.eq(ctx.authenticatedUser!.balance);
+        expect(user.password).to.eq(ctx.authenticatedUser!.password);
+      });
+    });
   });
 
   context("POST /login", function () {
