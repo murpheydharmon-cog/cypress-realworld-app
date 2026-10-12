@@ -1,7 +1,7 @@
 ///<reference path="types.ts" />
 
 import express from "express";
-import { isEqual, pick } from "lodash/fp";
+import { has, isEqual, pick } from "lodash/fp";
 
 import {
   getAllUsers,
@@ -21,6 +21,15 @@ import {
   isUserValidator,
 } from "./validators";
 const router = express.Router();
+
+const UPDATABLE_USER_FIELDS = [
+  "firstName",
+  "lastName",
+  "email",
+  "phoneNumber",
+  "avatar",
+  "defaultPrivacyLevel",
+];
 
 // Routes
 router.get("/", ensureAuthenticated, (req, res) => {
@@ -86,9 +95,23 @@ router.patch(
   (req, res) => {
     const { userId } = req.params;
 
-    const edits: User = req.body;
+    // Permission: account owner
+    /* istanbul ignore next */
+    if (!isEqual(userId, req.user?.id)) {
+      return res.status(401).send({
+        error: "Unauthorized",
+      });
+    }
 
-    updateUserById(userId, edits);
+    if (has("balance", req.body) || has("password", req.body)) {
+      return res.status(422).json({
+        errors: [{ msg: "balance and password cannot be updated via this endpoint" }],
+      });
+    }
+
+    const edits: Partial<User> = pick(UPDATABLE_USER_FIELDS, req.body);
+
+    updateUserById(req.user!.id, edits);
 
     res.sendStatus(204);
   }
