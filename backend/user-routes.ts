@@ -38,8 +38,19 @@ router.get("/search", ensureAuthenticated, validateMiddleware([searchValidation]
   res.status(200).json({ results: users });
 });
 
+const registrationFields = [
+  "firstName",
+  "lastName",
+  "username",
+  "password",
+  "email",
+  "phoneNumber",
+  "avatar",
+  "defaultPrivacyLevel",
+];
+
 router.post("/", userFieldsValidator, validateMiddleware(isUserValidator), (req, res) => {
-  const userDetails: User = req.body;
+  const userDetails: Partial<User> = pick(registrationFields, req.body);
 
   const user = createUser(userDetails);
 

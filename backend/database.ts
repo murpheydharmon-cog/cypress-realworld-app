@@ -186,7 +186,7 @@ export const createUser = (userDetails: Partial<User>): User => {
     password,
     email: userDetails.email!,
     phoneNumber: userDetails.phoneNumber!,
-    balance: Number(userDetails.balance!) || 0,
+    balance: 0,
     avatar: userDetails.avatar!,
     defaultPrivacyLevel: userDetails.defaultPrivacyLevel!,
     createdAt: new Date(),
